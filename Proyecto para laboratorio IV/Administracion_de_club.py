@@ -70,7 +70,7 @@ def agregar_integrante():
     apellido = obtener_input_validado("Apellido: ",no_numeros = True)
     numero_documento = obtener_input_validado("Número de documento: ", tipo=int)
     fecha_nacimiento = obtener_input_validado("Fecha de nacimiento (YYYY-MM-DD): ", formato_fecha=True)
-    telefono = obtener_input_validado("Teléfono: ")
+    telefono = obtener_input_validado("Teléfono: ", tipo=int)
     domicilio = obtener_input_validado("Domicilio: ")
 
     cursor.execute('''
