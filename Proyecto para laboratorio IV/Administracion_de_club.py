@@ -1,9 +1,10 @@
 import sqlite3
 from datetime import datetime
 
-# Conectar a la base de datos
+# Conectar a la base de datos y habilitar claves foraneas
 conn = sqlite3.connect('club.db')
 cursor = conn.cursor()
+cursor.execute('PRAGMA foreign_keys = ON')
 
 # Crear las tablas (si no existen)
 def crear_tablas():
@@ -26,7 +27,7 @@ def crear_tablas():
             tipo_actividad TEXT NOT NULL,
             fecha_inicio TEXT NOT NULL,
             fecha_fin TEXT NOT NULL,
-            FOREIGN KEY (ID_integrante) REFERENCES integrantes (ID)
+            FOREIGN KEY (ID_integrante) REFERENCES integrantes (ID) ON DELETE CASCADE
         )
     ''')
 
@@ -52,13 +53,14 @@ def obtener_input_validado(mensaje, tipo=str, obligatorio=True, formato_fecha=Fa
                 continue
             return int(valor)
         
-        # Validación de formato de fecha
+       # Validación de formato de fecha (DD-MM-YYYY)
         if formato_fecha:
             try:
-                datetime.strptime(valor, '%Y-%m-%d')
-                return valor
+                # Convertir de DD-MM-YYYY a YYYY-MM-DD
+                fecha_formateada = datetime.strptime(valor, '%d-%m-%Y').strftime('%Y-%m-%d')
+                return fecha_formateada
             except ValueError:
-                print("Por favor, ingresa una fecha válida en formato YYYY-MM-DD.")
+                print("Por favor, ingresa una fecha válida en formato DD-MM-YYYY.")
                 continue
         
         # Si pasa todas las validaciones, devolver el valor
@@ -83,13 +85,15 @@ def agregar_integrante():
 # Función para consultar los datos de los integrantes
 def consultar_integrantes():
     cursor.execute('SELECT * FROM integrantes')
-    integrantes = cursor.fetchall()  # Obtiene todos los resultados de la consulta
+    integrantes = cursor.fetchall() # Obtiene todos los resultados de la consulta
     if integrantes:
         for integrante in integrantes:
-            print(integrante)
-    else:
-        print("No hay integrantes registrados.")
-
+            # Convertir fecha de nacimiento al formato DD-MM-YYYY antes de mostrarla
+            fecha_nacimiento = datetime.strptime(integrante[4], '%Y-%m-%d').strftime('%d-%m-%Y')
+            print(f"ID: {integrante[0]}, Nombre: {integrante[1]}, Apellido: {integrante[2]}, "
+                  f"Documento: {integrante[3]}, Fecha de Nacimiento: {fecha_nacimiento}, "
+                  f"Teléfono: {integrante[5]}, Domicilio: {integrante[6]}")
+ 
 # Función para eliminar un integrante
 def eliminar_integrante():
     id_integrante = obtener_input_validado("ID del integrante a eliminar: ", tipo=int)
