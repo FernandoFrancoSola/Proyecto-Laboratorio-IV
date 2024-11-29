@@ -1,2 +1,0 @@
-Hola
-Buenos tardes, si estas viendo esto estoy practicando con git
